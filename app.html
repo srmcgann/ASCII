@@ -149,8 +149,8 @@
       ]
       var screenShader = await Coordinates.BasicShader(renderer, shaderOptions)
       
-      await fetch(asciiURL).then(res=>res.blob()).then(data => asciiImage.src = URL.createObjectURL(data))
-      
+      //await fetch(asciiURL).then(res=>res.blob()).then(data => asciiImage.src = URL.createObjectURL(data))
+      asciiImage.src = asciiURL
       var asciiImageLoaded = false
       var shapes = []
       
@@ -212,4 +212,5 @@
     </script>
   </body>
 </html>
+
 
