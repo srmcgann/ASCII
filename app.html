@@ -100,6 +100,9 @@
       
       if(asciiURL.toLowerCase().indexOf('.mp4') != -1){
         var asciiImage = document.createElement('video')
+        asciiImage.muted = true
+        asciiImage.loop = true
+        asciiImage.autoplay = true
       }else{
         var asciiImage = new Image()
       }
@@ -209,3 +212,4 @@
     </script>
   </body>
 </html>
+
