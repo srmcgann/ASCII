@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>resource to ascii</title>
+    <style>
+      body, html{
+        font-family: monospace;
+        color: #fff;
+        background-color: #000;
+        width: 100vw;
+        min-height: 100vh;
+        margin: 0;
+        overflow: hidden;
+      }
+      .header{
+        padding: 5px;
+        height: 15px;
+        background: linear-gradient(90deg, #000, #088, #40f);
+        border-bottom: 1px solid #fff2;
+      }
+      .controls{
+        text-align: center;
+        padding: 2px;
+        background: #102;
+        border: 1px solid #fff2;
+        border-radius: 50px;
+        width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-top: 5px;
+        margin-top: 10px;
+      }
+      .main{
+        padding: 0px;
+        width: calc(100vw - 0px);
+      }
+      .appIframe{
+        width: calc(100% - 2px);
+        border: none;
+        height: calc(100vh - 160px);
+      }
+      
+      .copyButton{
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        background-image: url(https://srmcgann.github.io/coordocs/clippy.svg);
+        cursor: pointer;
+        z-index: 500;
+        background-size: 90% 90%;
+        left: calc(50% + 180px);
+        background-position: center center;
+        background-repeat: no-repeat;
+        border: none;
+        background-color: #123;
+        border-radius: 5px;
+        vertical-align: middle;
+        float: right;
+        margin: 0;
+        margin-bottom: 5px;
+        margin-right: 50px;
+      }
+      #copyConfirmation{
+        display: none;
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        top: 0;
+        left: 0;
+        background: #012d;
+        color: #8ff;
+        opacity: 1;
+        text-shadow: 0 0 5px #fff;
+        font-size: 46px;
+        text-align: center;
+        z-index: 1000;
+      }
+      #innerCopied{
+        position: absolute;
+        top: 50%;
+        width: 100%;
+        z-index: 1020;
+        text-align: center;
+        transform: translate(0, -50%) scale(2.0, 1);
+      }
+      
+      .button{
+        cursor: pointer;
+        border-radius: 10px;
+        font-size: 16px;
+        background: #4f88;
+        line-height: 1em;
+        font-family: monospace;
+        border: none;
+        color: #fff;
+        text-shadow: #000 2px 2px 2px;
+        padding: 3px;
+        padding-left: 10px;
+        padding-right: 10px;
+        margin: 5px;
+        display: inline-block;
+      }
+
+      .range {
+        -webkit-appearance: none;
+        appearance: none; 
+        width: 100%;
+        cursor: pointer;
+        outline: none;
+        overflow: hidden;
+        border-radius: 16px;
+      }
+
+      .range::-webkit-slider-runnable-track {
+        height: 15px;
+        background: #555;
+        border-radius: 16px;
+      }
+
+      .range::-moz-range-track {
+        height: 15px;
+        background: #555;
+        border-radius: 16px;
+      }
+
+      .range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none; 
+        height: 15px;
+        width: 15px;
+        background-color: #000;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        box-shadow: -407px 0 0 400px #40f;
+      }
+
+      .range::-moz-range-thumb {
+        height: 15px;
+        width: 15px;
+        background-color: #000;
+        border-radius: 50%;
+        border: 1px solid #40f;
+        box-shadow: -407px 0 0 400px #40f;
+      }
+      .content {
+        width: 150px;
+        height: 20px;
+        border: 3px solid #fff4;
+        background-color: #000;
+        border-radius: 15px;
+        padding: 1px;
+        padding-left: 3px;
+        padding-right: 6px;
+        display: inline-block;
+      }
+      
+      input[type=text]:focus{
+        outline: none;
+      }
+      
+      input[type=text]{
+        background: #024;
+        border-radius: 10px;
+        width: calc(100% - 40px);
+        border: none;
+        border-bottom: 1px solid #8888;
+        spellcheck: false;
+        color: #4f8;
+        padding-left: 10px;
+        padding-right: 10px;
+        font-family: monospace;
+      }
+      
+      hr{
+        border: none;
+        border: 1px solid #fff1;
+      }
+      .updateable{
+        float: right;
+        width: 40px;
+        font-size: 1.33em;
+      }
+      .controlElementTitle{
+        width: 80px;
+        text-align: center;
+        line-height: .75em;
+        display: inline-block;
+      }
+      label{
+        margin-left: 20px;
+      }
+      .clear{
+        clear: both;
+      }
+      
+      
+
+      .checkmarkContainer {
+        display: inline-block;
+        position: relative;
+        padding-left: 35px;
+        vertical-align: middle;
+        line-height: 24px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        margin-top: -4px;
+      }
+
+      .checkmarkContainer input {
+        position: absolute;
+        opacity: 0;
+        height: 0;
+        width: 0;
+      }
+
+      .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 25px;
+        width: 25px;
+        background-color: #021;
+        border-radius: 5px;
+        border: 1px solid #042;
+      }
+      
+      input[type=radio]:focus{
+        outline: none;
+      }
+      input[type=radio]{
+        transform: scale(2.0);
+        margin-top: -2px;
+        vertical-align: middle;
+      }
+
+      .checkmarkContainer:hover input ~ .checkmark {
+        background-color: #444;
+      }
+
+      .checkmarkContainer input:checked ~ .checkmark {
+        background-color: #200;
+        border: 1px solid #400;
+      }
+
+      .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+      }
+
+      .checkmarkContainer input:checked ~ .checkmark:after {
+        display: block;
+      }
+
+      .checkmarkContainer .checkmark:after {
+        left: 9px;
+        top: 5px;
+        width: 5px;
+        height: 10px;
+        border: solid #f00;
+        border-width: 0 3px 3px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="copyConfirmation"><div id="innerCopied">COPIED!</div></div>
+    <div class="header">
+      resource to ascii
+    </div>
+    <div class="controls">
+      <label for="range1" title="font size">
+        <div class="controlElementTitle">
+          <span style="float: left;">font<br>size</span>
+          <span class="updateable" id="fontsizeTitle"></span>
+        </div>
+        <div class="content">
+          <input
+            type="range"
+            class="range"
+            id="range1"
+            min="1"
+          />
+        </div>
+      </label>
+      <label for="range2" title="gamma">
+        <div class="controlElementTitle">
+          <span style="float: left;">gamma</span>
+          <span class="updateable" id="gammaTitle"></span>
+        </div>
+        <div class="content">
+          <input
+            type="range"
+            class="range"
+            id="range2"
+            min="1"
+          />
+        </div>
+      </label>
+      <hr>
+      <input
+        type="text"
+        spellcheck="false"
+        id="urlInput"
+        oninput="UpdateTgtURL(this)"
+        placeholder="enter url to image or video resource"
+      />
+      <hr>
+      
+      <!-- <button class="button">control 3</button> -->
+
+      <div style=" text-align: left; float: left; margin-left: 50px;">
+        <input
+          type="text"
+          style = "width: 65px;"
+          spellcheck="false"
+          id="monochromeColorInput"
+          oninput="UpdateMonochromColor(this)"
+          placeholder="enter a hex value for the monochrome color"
+        />
+        <br>
+        monochrome color, if used
+      </div>
+
+      <label
+        class="checkmarkContainer"
+      >
+        <span id="monochromeCheckLabel">monochrome</span>
+        <input
+          id="monochromeCheck"
+          type="checkbox"
+          oninput="ToggleMonochrome(this)"
+        />
+        <span class="checkmark"></span>
+      </label>
+
+      <!--
+      var gamma = 1
+      var ascii = true
+      var fontSize = 20
+      var monochrome = false
+      var colorizeOutput = false
+      var outputToConsole = false
+      var outputToConsoleOnce = false
+
+      var monochromeColor = 0x00ff44
+      -->
+
+
+      <label
+        class="checkmarkContainer"
+      >
+        <span id="colorizeOutputCheckLabel">colorize output</span>
+        <input
+          id="colorizeOutputCheck"
+          type="checkbox"
+          oninput="ToggleColorizeOutput(this)"
+        />
+        <span class="checkmark"></span>
+      </label>
+
+
+
+      <button
+        class="copyButton"
+        id="copyOutput"
+        onclick="CopyOutput()"
+        title="copy output to clipboard"
+      ></button>
+      <div class="clear"></div>
+    </div>
+    <div class="main">
+      <iframe class="appIframe"></iframe>
+    </div>
+    <script>
+      var url = 'https://www.tiqets.com/blog/wp-content/uploads/2023/01/Mona_Lisa.jpg'
+      var gamma = 1
+      var ascii = true
+      var fontSize = 20
+      var monochrome = false
+      var monochromeColor = '0x'+eval(0x00ff44).toString(16)
+      var colorizeOutput = false
+      var outputToConsole = false
+      var outputToConsoleOnce = false
+      if(location.href.toLowerCase().split('gamma=').length > 1){
+        gamma = eval(location.href.toLowerCase().split('gamma=')[1].split('&')[0])
+      }
+      if(location.href.toLowerCase().split('url=').length > 1){
+        url = location.href.split('url=')[1].split('&')[0]
+      }
+      if(location.href.toLowerCase().split('ascii=').length > 1){
+        ascii = eval(location.href.toLowerCase().split('ascii=')[1].split('&')[0])
+      }
+      if(location.href.toLowerCase().split('fontsize=').length > 1){
+        fontSize = location.href.toLowerCase().split('fontsize=')[1].split('&')[0]
+      }
+      if(location.href.toLowerCase().split('monochrome=').length > 1){
+        monochrome = eval(location.href.toLowerCase().split('monochrome=')[1].split('&')[0])
+        document.querySelector('#monochromeCheck').checked = monochrome
+      }
+      if(location.href.toLowerCase().split('monochromecolor=').length > 1){
+        monochromeColor = eval(location.href.toLowerCase().split('monochromecolor=')[1].split('&')[0])
+      }
+      if(location.href.toLowerCase().split('colorizeoutput=').length > 1){
+        colorizeOutput = eval(location.href.toLowerCase().split('colorizeoutput=')[1].split('&')[0])
+        document.querySelector('#colorizeOutputCheck').checked = colorizeOutput
+      }
+      if(location.href.toLowerCase().split('outputtoconsole=').length > 1){
+        outputToConsole = eval(location.href.toLowerCase().split('outputtoconsole=')[1].split('&')[0])
+      }
+      if(location.href.toLowerCase().split('outputtoconsoleonce=').length > 1){
+        outputToConsoleOnce = eval(location.href.toLowerCase().split('outputtoconsoleonce=')[1].split('&')[0])
+      }
+      
+      const CopyOutput =() => {
+        if(window?.ASCIIData.text.length){
+          //console.log(window.ASCIIData.text)
+          var range = document.createRange()
+          var tempDiv = document.createElement('div')
+          tempDiv.innerText = window.ASCIIData.text.replaceAll('%%','%')
+          tempDiv.style.opacity = .001
+          tempDiv.style.position = 'absolute'
+          document.body.appendChild(tempDiv)
+          range.selectNode(tempDiv)
+          window.getSelection().removeAllRanges()
+          window.getSelection().addRange(range)
+          document.execCommand("copy")
+          window.getSelection().removeAllRanges()
+          let el = document.querySelector('#copyConfirmation')
+          el.style.display = 'block';
+          el.style.opacity = 1
+          reduceOpacity = () => {
+            if(+el.style.opacity > 0){
+              el.style.opacity -= .1
+              if(+el.style.opacity<.1){
+                el.style.opacity = 1
+                el.style.display = 'none'
+              }else{
+                setTimeout(()=>{
+                  reduceOpacity()
+                }, 10)
+              }
+            }
+          }
+          document.body.removeChild(tempDiv)
+          setTimeout(()=>{reduceOpacity()}, 250)
+        }
+      }
+      
+      var frameLoaded
+      const LoadFrame = () => {
+        frameLoaded = false
+        window.ASCIIFrameCount = 0
+
+        var tco = colorizeOutput
+        var tmc = (!tco) || monochrome
+        var tmcc = !(monochrome || colorizeOutput) ? 0xffffff : eval(monochromeColor)
+
+        document.querySelector('#copyOutput').style.display = 'none'
+        document.querySelectorAll('.appIframe')[0].src = `app.html?url=${url}&fontsize=${fontSize}&gamma=${gamma}&ascii=${true}&monochrome=${tmc}&monochromecolor=${tmcc}&colorizeoutput=${tco}&outputtoconsole=${outputToConsole}&outputtoconsoleonce=${outputToConsoleOnce}`
+      }
+
+      const UpdateURL = () => {
+        var newURL = location.origin+location.pathname
+        newURL += `?url=${url}`
+        newURL += `&colorizeoutput=${colorizeOutput}`
+        newURL += `&monochrome=${monochrome}`
+        var mcl = '0x'+eval(monochromeColor).toString(16)
+        newURL += `&monochromecolor=${mcl}`
+        newURL += `&gamma=${gamma}`
+        newURL += `&fontsize=${fontSize}`
+        //newURL += `&outputtoconsole=${outputToConsole}`
+        //newURL += `&outputtoconsoleonce=${outputToConsoleOnce}`
+        history.replaceState({}, document.title, newURL)
+        LoadFrame()
+      }
+      UpdateURL()
+      
+      const UpdateTgtURL = e => {
+        url = e.value
+        UpdateURL()
+      }
+      
+      urlInput.onclick = () => urlInput.select()
+      
+      document.querySelector('#urlInput').value = url
+      document.querySelector('#monochromeColorInput').value = '0x' +eval(monochromeColor).toString(16)
+      
+      document.querySelector('#fontsizeTitle').innerHTML = fontSize
+      document.querySelector("#range1").value = fontSize * 2
+      
+      document.querySelector('#gammaTitle').innerHTML = gamma
+      document.querySelector("#range2").value = gamma * 25
+      
+      document.querySelector("#range1").addEventListener("input", (event) => {
+        fontSize = document.querySelector("#range1").value / 2
+        document.querySelector('#fontsizeTitle').innerHTML = fontSize
+        UpdateURL()
+      })
+      document.querySelector("#range2").addEventListener("input", (event) => {
+        gamma = document.querySelector("#range2").value / 25
+        document.querySelector('#gammaTitle').innerHTML = gamma
+        UpdateURL()
+      })
+      
+      const PassiveLoop = () => {
+        if(window?.ASCIIData?.frameCount){
+          if(!frameLoaded){
+            frameLoaded = true
+            document.querySelector('#copyOutput').style.display = 'inline-block'
+          }
+        }
+        requestAnimationFrame(PassiveLoop)
+      }
+      PassiveLoop()
+      
+      const UpdateMonochromColor = e => {
+        monochromeColor = '0x'+eval(e.value).toString(16)
+        UpdateURL()
+      }
+      
+      const ToggleMonochrome = e => {
+        monochrome = e.checked
+        UpdateURL()
+      }
+      
+      const ToggleColorizeOutput= e => {
+        colorizeOutput = e.checked
+        UpdateURL()
+      }
+      
+    </script>
+  </body>
+</html>
